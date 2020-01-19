@@ -18,6 +18,7 @@ namespace ConsoleApp2
             const string settingSheetName = "Settings";
             const string namesSheetName = "Names";
             const string wishesSheetName = "Wishes";
+            int countWishGenerationAtOnce = 3;
             Excel.Worksheet worksheet;
             Excel.Workbook workbook;
             List<List<string>> wishes = new List<List<string>>();
@@ -41,7 +42,8 @@ namespace ConsoleApp2
             try
             {
                 worksheet = (Excel.Worksheet)workbook.Worksheets[settingSheetName];
-                templateName = worksheet.Cells[2, 2].Text;
+                templateName = worksheet.Cells[1, 2].Text;
+                countWishGenerationAtOnce = Convert.ToInt32(worksheet.Cells[2, 2].Value);
             }
             catch (Exception e)
             {
@@ -77,7 +79,7 @@ namespace ConsoleApp2
                     wishes.Add(new List<string>());
                     for (int j = 2; worksheet.Cells[j, i].Value != null; j++)
                     {
-                        wishes[i-1].Add(worksheet.Cells[j, i].Text);
+                        wishes[i - 1].Add(worksheet.Cells[j, i].Text);
                     }
                 }
             }
@@ -100,41 +102,70 @@ namespace ConsoleApp2
             //Console.WriteLine(templateName);
 
             excelApp.Quit();
+
+            Word.Application wordApp = new Word.Application();
+            Word.Document wDoc = null;
+
+            //try create doc
+            try
+            {
+                wDoc = wordApp.Documents.Add(templateName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to open template");
+                Console.WriteLine(e.Message);
+                wordApp.Quit();
+                Console.ReadLine();
+                return;
+            }
+
+            WishesGenerator wishesGenerator = new WishesGenerator(wishes, countWishGenerationAtOnce);
+
+            for (int j = 0; j < names.Count; j++)
+            {
+                wishesGenerator.generateNewWish();
+                wordApp.ActiveDocument.Bookmarks["Name"].Range.Text = names[j];
+                for (int i = 0; i < countWishGenerationAtOnce; i++)
+                {
+                    wordApp.ActiveDocument.Bookmarks[$"Wish{i + 1}"].Range.Text = wishesGenerator.Wishes[i];
+                }
+                if (j + 1 < names.Count)
+                {
+                    wordApp.Selection.EndKey(Word.WdUnits.wdStory);
+                    wordApp.Selection.InsertNewPage();
+                    wordApp.Selection.InsertFile(templateName);
+                }
+            }
+            wordApp.Visible = true;
             Console.ReadLine();
-            //excelApp.Quit();
-            //Document doc = null;
+        }
 
-            //try
-            //{
-            //    doc = app.Documents.Add(templateName);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine("Unable to open template");
-            //    Console.WriteLine(e.Message);
-            //    app.Quit();
-            //    Console.ReadLine();
-            //    return;
-            //}
-            //app.ActiveDocument.Bookmarks["Name"].Range.Text = "n1";
-            //app.ActiveDocument.Bookmarks["Wish1"].Range.Text = "w11";
-            //app.ActiveDocument.Bookmarks["Wish2"].Range.Text = "w12";
-            //app.ActiveDocument.Bookmarks["Wish3"].Range.Text = "w13";
+        class WishesGenerator
+        {
+            private List<List<string>> allWishes;
+            private List<string> wishes;
+            private int countExistW = 0;
+            private int countWishGenerationAtOnce;
 
-            //app.Selection.EndKey(WdUnits.wdStory);
-            //app.Selection.InsertNewPage();
-            //app.Selection.InsertFile(templateName, "", false, false, false);
+            public List<string> Wishes { get { return wishes; } }
 
-            //app.ActiveDocument.Bookmarks["Name"].Range.Text = "n2";
-            //app.ActiveDocument.Bookmarks["Wish1"].Range.Text = "w21";
-            //app.ActiveDocument.Bookmarks["Wish2"].Range.Text = "w22";
-            //app.ActiveDocument.Bookmarks["Wish3"].Range.Text = "w23";
+            public WishesGenerator(List<List<string>> allWishes, int countWishGenerationAtOnce)
+            {
+                this.allWishes = allWishes;
+                if (countWishGenerationAtOnce > 0)
+                    this.countWishGenerationAtOnce = countWishGenerationAtOnce;
+                else
+                    this.countWishGenerationAtOnce = 1;
+                wishes = new List<string>();
+                wishes.Add("счастья");
+                wishes.Add("здоровья");
+                wishes.Add("денег");
+            }
 
-            //Console.WriteLine("Generation complited");
-            //Console.ReadLine();
-            //app.Visible = true;
-
-
+            public void generateNewWish()
+            {
+            }
         }
     }
 }
