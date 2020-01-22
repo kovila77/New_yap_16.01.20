@@ -13,12 +13,11 @@ namespace ConsoleApp2
         static void Main(string[] args)
         {
             Excel.Application excelApp = new Excel.Application();
-            const string settingsFileName = @"C:\Users\35498\OneDrive\PSU\SYAP\New_yap_16.01.20\wishes.xlsx";
+            const string settingsFileName = @"C:\Users\35498\source\repos\New_yap_16.01.20\wishes.xlsx";
             string templateName;
             const string settingSheetName = "Settings";
             const string namesSheetName = "Names";
             const string wishesSheetName = "Wishes";
-            int countWishGenerationAtOnce = 3;
             Excel.Worksheet worksheet;
             Excel.Workbook workbook;
             List<List<string>> wishes = new List<List<string>>();
@@ -43,7 +42,6 @@ namespace ConsoleApp2
             {
                 worksheet = (Excel.Worksheet)workbook.Worksheets[settingSheetName];
                 templateName = worksheet.Cells[1, 2].Text;
-                countWishGenerationAtOnce = Convert.ToInt32(worksheet.Cells[2, 2].Value);
             }
             catch (Exception e)
             {
@@ -120,15 +118,16 @@ namespace ConsoleApp2
                 return;
             }
 
-            WishesGenerator wishesGenerator = new WishesGenerator(wishes, countWishGenerationAtOnce);
+            WishesGenerator wishesGenerator = new WishesGenerator(wishes);
+            wishesGenerator.generateWishes();
 
             for (int j = 0; j < names.Count; j++)
             {
-                wishesGenerator.generateNewWish();
+                wishesGenerator.newTrio();
                 wordApp.ActiveDocument.Bookmarks["Name"].Range.Text = names[j];
-                for (int i = 0; i < countWishGenerationAtOnce; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    wordApp.ActiveDocument.Bookmarks[$"Wish{i + 1}"].Range.Text = wishesGenerator.Wishes[i];
+                    wordApp.ActiveDocument.Bookmarks[$"Wish{i + 1}"].Range.Text = (wishesGenerator.WishesTrio)[i];
                 }
                 if (j + 1 < names.Count)
                 {
@@ -144,27 +143,89 @@ namespace ConsoleApp2
         class WishesGenerator
         {
             private List<List<string>> allWishes;
-            private List<string> wishes;
+            private List<List<string>> combinationsWishes;
+            private List<string> wishesTrio;
             private int countExistW = 0;
-            private int countWishGenerationAtOnce;
+            private int gg;
 
-            public List<string> Wishes { get { return wishes; } }
+            public List<string> WishesTrio { get { return wishesTrio; } }
 
-            public WishesGenerator(List<List<string>> allWishes, int countWishGenerationAtOnce)
+            public WishesGenerator(List<List<string>> allWishes)
             {
                 this.allWishes = allWishes;
-                if (countWishGenerationAtOnce > 0)
-                    this.countWishGenerationAtOnce = countWishGenerationAtOnce;
-                else
-                    this.countWishGenerationAtOnce = 1;
-                wishes = new List<string>();
-                wishes.Add("счастья");
-                wishes.Add("здоровья");
-                wishes.Add("денег");
+                wishesTrio = new List<string>();
+                //wishesTrio.Add(IEnumerable)"счастья");
+                // wishesTrio.Add("здоровья");
+                //wishesTrio.Add("денег");
             }
 
-            public void generateNewWish()
+            public void generateWishes()
             {
+                combinationsWishes = new List<List<string>>();
+                for (int i = 0; i < allWishes.Count; i++)
+                {
+                    for (int j = i + 1; j < allWishes.Count; j++)
+                    {
+                        for (int k = j + 1; k < allWishes.Count; k++)
+                        {
+                            var tmp = new List<List<string>>();
+                            tmp.Add(allWishes[i]);
+                            tmp.Add(allWishes[j]);
+                            tmp.Add(allWishes[k]);
+                            combinationsWishes.AddRange(CartesianProduct(tmp));
+
+                            gg = 0;
+                        }
+                    }
+                }
+            }
+
+            public void newTrio()
+            {
+                wishesTrio = combinationsWishes[gg++];
+            }
+
+            //private IEnumerable<IEnumerable<string>> CartesianProduct(IEnumerable<IEnumerable<string>> sequences)
+            //{
+            //    IEnumerable<IEnumerable<string>> result = new[] { Enumerable.Empty<string>() };
+            //    foreach (var sequence in sequences)
+            //    {
+            //        //var s = sequence;
+            //        //result =
+            //        //from seq in result
+            //        //from item in s
+            //        //select seq.Concat(new[] { item });
+            //        foreach (var seq in result)
+            //        {
+            //            foreach (var item in sequence)
+            //            {
+
+            //            }
+            //        }
+            //    }
+            //    return result;
+            //}
+
+            private List<List<string>> CartesianProduct(List<List<string>> sequences)
+            {
+                List<List<string>> result = new List<List<string>>();
+                result.Add(new List<string>());
+                foreach (var sequence in sequences)
+                {
+                    //var s = sequence;
+                    //result =
+                    //from seq in result
+                    //from item in s
+                    //select seq.Concat(new[] { item });
+                    foreach (var seq in result)
+                    {
+                        foreach (var item in sequence)
+                        {
+                            seq.Add(item);
+                        }
+                    }
+                }
+                return result;
             }
         }
     }
