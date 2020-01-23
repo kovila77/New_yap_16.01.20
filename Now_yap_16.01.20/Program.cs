@@ -146,7 +146,7 @@ namespace ConsoleApp2
             private List<List<string>> combinationsWishes;
             private List<string> wishesTrio;
             private int countExistW = 0;
-            private int gg;
+            private int currentNumberWish;
 
             public List<string> WishesTrio { get { return wishesTrio; } }
 
@@ -159,7 +159,7 @@ namespace ConsoleApp2
                 //wishesTrio.Add("денег");
             }
 
-            public void generateWishes()
+            public void generateWishes(int coutnWishToCreate)
             {
                 combinationsWishes = new List<List<string>>();
                 for (int i = 0; i < allWishes.Count; i++)
@@ -172,9 +172,9 @@ namespace ConsoleApp2
                             tmp.Add(allWishes[i]);
                             tmp.Add(allWishes[j]);
                             tmp.Add(allWishes[k]);
-                            combinationsWishes.AddRange(CartesianProduct(tmp));
+                            combinationsWishes.AddRange(CreatWishesCombination(tmp));
 
-                            gg = 0;
+                            currentNumberWish = 0;
                         }
                     }
                 }
@@ -182,7 +182,8 @@ namespace ConsoleApp2
 
             public void newTrio()
             {
-                wishesTrio = combinationsWishes[gg++];
+                if (currentNumberWish < combinationsWishes.Count && currentNumberWish >= 0)
+                    wishesTrio = combinationsWishes[currentNumberWish++];
             }
 
             //private IEnumerable<IEnumerable<string>> CartesianProduct(IEnumerable<IEnumerable<string>> sequences)
@@ -206,25 +207,20 @@ namespace ConsoleApp2
             //    return result;
             //}
 
-            private List<List<string>> CartesianProduct(List<List<string>> sequences)
+            private List<List<string>> CreatWishesCombination(List<List<string>> sourse)
             {
+                if (sourse.Count != 3)
+                    throw new ArgumentException("There was not 3 topic of wish");
+
                 List<List<string>> result = new List<List<string>>();
-                result.Add(new List<string>());
-                foreach (var sequence in sequences)
-                {
-                    //var s = sequence;
-                    //result =
-                    //from seq in result
-                    //from item in s
-                    //select seq.Concat(new[] { item });
-                    foreach (var seq in result)
-                    {
-                        foreach (var item in sequence)
-                        {
-                            seq.Add(item);
-                        }
-                    }
-                }
+                for (int i = 0; i < sourse[0].Count; i++)
+                    for (int j = 0; j < sourse[1].Count; j++)
+                        for (int k = 0; k < sourse[2].Count; k++)
+                            result.Add(new List<string> {
+                                (string)sourse[0][i].Clone(),
+                                (string)sourse[1][j].Clone(),
+                                (string)sourse[2][k].Clone()
+                            });
                 return result;
             }
         }
