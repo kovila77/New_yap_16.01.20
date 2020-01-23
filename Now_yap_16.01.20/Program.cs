@@ -119,23 +119,36 @@ namespace ConsoleApp2
             }
 
             WishesGenerator wishesGenerator = new WishesGenerator(wishes);
-            wishesGenerator.generateWishes();
+            wishesGenerator.generateWishes(12313);
 
+            int ff = 0;
             for (int j = 0; j < names.Count; j++)
             {
                 wishesGenerator.newTrio();
-                wordApp.ActiveDocument.Bookmarks["Name"].Range.Text = names[j];
                 for (int i = 0; i < 3; i++)
                 {
-                    wordApp.ActiveDocument.Bookmarks[$"Wish{i + 1}"].Range.Text = (wishesGenerator.WishesTrio)[i];
-                }
-                if (j + 1 < names.Count)
-                {
-                    wordApp.Selection.EndKey(Word.WdUnits.wdStory);
-                    wordApp.Selection.InsertNewPage();
-                    wordApp.Selection.InsertFile(templateName);
+                    Console.WriteLine((wishesGenerator.WishesTrio)[i]);
+                    ff++;
                 }
             }
+            Console.WriteLine(ff);
+
+            if (false)
+                for (int j = 0; j < names.Count; j++)
+                {
+                    wishesGenerator.newTrio();
+                    wordApp.ActiveDocument.Bookmarks["Name"].Range.Text = names[j];
+                    for (int i = 0; i < 3; i++)
+                    {
+                        wordApp.ActiveDocument.Bookmarks[$"Wish{i + 1}"].Range.Text = (wishesGenerator.WishesTrio)[i];
+                    }
+                    if (j + 1 < names.Count)
+                    {
+                        wordApp.Selection.EndKey(Word.WdUnits.wdStory);
+                        wordApp.Selection.InsertNewPage();
+                        wordApp.Selection.InsertFile(templateName);
+                    }
+                }
             wordApp.Visible = true;
             Console.ReadLine();
         }
@@ -143,16 +156,31 @@ namespace ConsoleApp2
         class WishesGenerator
         {
             private List<List<string>> allWishes;
-            private List<List<string>> combinationsWishes;
+            List<List<bool>> allWithesUsed;
+            private List<List<string>> combinationsWishesUnique3;
+            private int curCombW3;
+            private List<List<string>> combinationsWishesUnique2;
+            private int curCombW2;
+            private List<List<string>> combinationsWishesUnique1;
+            private int curCombW1;
             private List<string> wishesTrio;
             private int countExistW = 0;
-            private int currentNumberWish;
+
 
             public List<string> WishesTrio { get { return wishesTrio; } }
 
             public WishesGenerator(List<List<string>> allWishes)
             {
                 this.allWishes = allWishes;
+                allWithesUsed = new List<List<bool>>();
+                for (int i = 0; i < allWishes.Count; i++)
+                {
+                    allWithesUsed.Add(new List<bool>());
+                    for (int j = 0; j < allWishes[i].Count; j++)
+                    {
+                        allWithesUsed[i].Add(false);
+                    }
+                }
                 wishesTrio = new List<string>();
                 //wishesTrio.Add(IEnumerable)"счастья");
                 // wishesTrio.Add("здоровья");
@@ -161,29 +189,97 @@ namespace ConsoleApp2
 
             public void generateWishes(int coutnWishToCreate)
             {
-                combinationsWishes = new List<List<string>>();
-                for (int i = 0; i < allWishes.Count; i++)
-                {
-                    for (int j = i + 1; j < allWishes.Count; j++)
-                    {
-                        for (int k = j + 1; k < allWishes.Count; k++)
-                        {
-                            var tmp = new List<List<string>>();
-                            tmp.Add(allWishes[i]);
-                            tmp.Add(allWishes[j]);
-                            tmp.Add(allWishes[k]);
-                            combinationsWishes.AddRange(CreatWishesCombination(tmp));
+                combinationsWishesUnique1 = new List<List<string>>();
+                combinationsWishesUnique2 = new List<List<string>>();
+                combinationsWishesUnique3 = new List<List<string>>();
+                bool[] topicsUse = new bool[allWishes.Count];
 
-                            currentNumberWish = 0;
+                for (int topic0 = 0; topic0 < allWishes.Count; topic0++)
+                {
+                    for (int topic1 = topic0 + 1; topic1 < allWishes.Count; topic1++)
+                    {
+                        for (int topic2 = topic1 + 1; topic2 < allWishes.Count; topic2++)
+                        {
+                            for (int i = 0; i < allWishes[topic0].Count; i++)
+                            {
+                                for (int j = 0; j < allWishes[topic1].Count; j++)
+                                {
+                                    for (int k = 0; k < allWishes[topic2].Count; k++)
+                                    {
+                                        if (notUse3Wish(topic0, topic1, topic2, i, j, k))
+                                        {
+                                            combinationsWishesUnique3.Add(
+                                                new List<string> {
+                                                (string)allWishes[topic0][i].Clone(),
+                                                (string)allWishes[topic1][j].Clone(),
+                                                (string)allWishes[topic2][k].Clone()
+                                            });
+                                        }
+                                        else if (notUse2Wish(topic0, topic1, topic2, i, j, k))
+                                        {
+                                            combinationsWishesUnique2.Add(
+                                                new List<string> {
+                                                (string)allWishes[topic0][i].Clone(),
+                                                (string)allWishes[topic1][j].Clone(),
+                                                (string)allWishes[topic2][k].Clone()
+                                            });
+                                        }
+                                        else
+                                        {
+                                            combinationsWishesUnique1.Add(
+                                                new List<string> {
+                                                (string)allWishes[topic0][i].Clone(),
+                                                (string)allWishes[topic1][j].Clone(),
+                                                (string)allWishes[topic2][k].Clone()
+                                            });
+                                        }
+                                        allWithesUsed[topic0][i] = true;
+                                        allWithesUsed[topic1][j] = true;
+                                        allWithesUsed[topic2][k] = true;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+
+                curCombW3 = curCombW2 = curCombW1 = 0;
             }
 
             public void newTrio()
             {
-                if (currentNumberWish < combinationsWishes.Count && currentNumberWish >= 0)
-                    wishesTrio = combinationsWishes[currentNumberWish++];
+                if (!(curCombW3 == combinationsWishesUnique3.Count))
+                {
+                    wishesTrio = combinationsWishesUnique3[curCombW3++];
+                }
+                else if (!(curCombW2 == combinationsWishesUnique2.Count))
+                {
+                    wishesTrio = combinationsWishesUnique3[curCombW2++];
+                }
+                else
+                {
+                    wishesTrio = combinationsWishesUnique3[curCombW1++];
+                }
+            }
+
+            private bool notUse3Wish(int topic0, int topic1, int topic2, int i, int j, int k)
+            {
+                return !allWithesUsed[topic0][i] && !allWithesUsed[topic1][j] && !allWithesUsed[topic2][k];
+            }
+
+            private bool notUse2Wish(int topic0, int topic1, int topic2, int i, int j, int k)
+            {
+                return !allWithesUsed[topic0][i] && !allWithesUsed[topic1][j] && !allWithesUsed[topic2][k]
+                 && !allWithesUsed[topic0][i] && !allWithesUsed[topic1][j] && allWithesUsed[topic2][k]
+                 && !allWithesUsed[topic0][i] && allWithesUsed[topic1][j] && !allWithesUsed[topic2][k]
+                 && allWithesUsed[topic0][i] && !allWithesUsed[topic1][j] && !allWithesUsed[topic2][k];
+            }
+
+            private bool notUse1Wish(int topic0, int topic1, int topic2, int i, int j, int k)
+            {
+                return !allWithesUsed[topic0][i] && allWithesUsed[topic1][j] && allWithesUsed[topic2][k]
+                 && allWithesUsed[topic0][i] && !allWithesUsed[topic1][j] && allWithesUsed[topic2][k]
+                 && allWithesUsed[topic0][i] && allWithesUsed[topic1][j] && !allWithesUsed[topic2][k];
             }
 
             //private IEnumerable<IEnumerable<string>> CartesianProduct(IEnumerable<IEnumerable<string>> sequences)
