@@ -17,10 +17,10 @@ namespace Now_yap_16._01._20
         public int yTemplateName = 2;
         private string templateName = null;
         private Excel.Application excelApp = null;
-        Excel.Worksheet worksheetSettings = null;
-        Excel.Worksheet worksheetNames = null;
-        Excel.Worksheet worksheetWishes = null;
-        Excel.Workbook workbook = null;
+        private Excel.Worksheet worksheetSettings = null;
+        private Excel.Worksheet worksheetNames = null;
+        private Excel.Worksheet worksheetWishes = null;
+        private Excel.Workbook workbook = null;
 
         private Excel.Application ExcelApp { get { if (excelApp == null) excelApp = new Excel.Application(); return excelApp; } }
         private Excel.Worksheet WorksheetSettings { get { if (worksheetSettings == null) worksheetSettings = (Excel.Worksheet)Workbook.Worksheets[settingSheetName]; return worksheetSettings; } }
