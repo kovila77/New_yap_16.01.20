@@ -68,7 +68,7 @@ namespace Now_yap_16._01._20
 
         public bool isThereEnoughtCombination(int countNames)
         {
-            return MaxCountUniqueTrio <= countNames;
+            return MaxCountUniqueTrio >= countNames;
         }
 
         public void generateWishes()

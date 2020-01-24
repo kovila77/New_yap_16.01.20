@@ -42,7 +42,7 @@ namespace Now_yap_16._01._20
             }
         }
 
-        public void show()
+        public void showWord()
         {
             WordApp.Visible = true;
         }
