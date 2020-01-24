@@ -11,6 +11,8 @@ namespace Now_yap_16._01._20
         static void Main(string[] args)
         {
             string settingsFileName = @"C:\Users\35498\source\repos\New_yap_16.01.20\wishes.xlsx";
+            //Bad Script
+
 
             List<List<string>> wishes;
             List<string> names;
@@ -27,6 +29,8 @@ namespace Now_yap_16._01._20
 
             Console.WriteLine($"Чтение имени файла шаблона из листа {excelSettingReader.settingSheetName} в ячейке {excelSettingReader.xTemplateName} {excelSettingReader.yTemplateName}...");
             WordWishesWriter wordWishesWriter = new WordWishesWriter(excelSettingReader.TemplateName);
+
+            wordWishesWriter.fontName = excelSettingReader.FontName;
 
             Console.WriteLine($"Чтение имён с листа {excelSettingReader.namesSheetName}...");
             names = excelSettingReader.GetNames();

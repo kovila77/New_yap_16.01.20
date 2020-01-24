@@ -12,6 +12,7 @@ namespace Now_yap_16._01._20
         private Word.Application wordApp = new Word.Application();
         private Word.Document wDoc = null;
         public string templateName = null;
+        public string fontName = null;
 
         private Word.Application WordApp { get { if (wordApp == null) { wordApp = new Word.Application(); loadDoc(); } return wordApp; } }
         private Word.Document WDoc { get { if (wDoc == null) loadDoc(); return wDoc; } }
@@ -39,6 +40,12 @@ namespace Now_yap_16._01._20
                     WordApp.Selection.InsertNewPage();
                     WordApp.Selection.InsertFile(templateName);
                 }
+            }
+
+            if (fontName != null)
+            {
+                WordApp.Selection.WholeStory();
+                WordApp.Selection.Font.Name = fontName;
             }
         }
 

@@ -15,7 +15,10 @@ namespace Now_yap_16._01._20
         public string wishesSheetName = "Wishes";
         public int xTemplateName = 1;
         public int yTemplateName = 2;
+        public int xfontName = 2;
+        public int yfontName = 2;
         private string templateName = null;
+        private string fontName = null;
         private Excel.Application excelApp = null;
         private Excel.Worksheet worksheetSettings = null;
         private Excel.Worksheet worksheetNames = null;
@@ -29,6 +32,7 @@ namespace Now_yap_16._01._20
         private Excel.Workbook Workbook { get { if (workbook == null) workbook = ExcelApp.Workbooks.Open(settingsFileName); return workbook; } }
 
         public string TemplateName { get { if (templateName == null) templateName = WorksheetSettings.Cells[xTemplateName, yTemplateName].Text; return templateName; } }
+        public string FontName { get { if (fontName == null) fontName = WorksheetSettings.Cells[xfontName, yfontName].Text; return fontName; } }
 
         public ExcelSettingReader(string settingsFileName)
         {
