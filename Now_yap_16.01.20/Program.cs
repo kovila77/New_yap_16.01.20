@@ -11,9 +11,7 @@ namespace Now_yap_16._01._20
         static void Main(string[] args)
         {
             string settingsFileName = @"C:\Users\35498\source\repos\New_yap_16.01.20\wishes.xlsx";
-            //Bad Script
-
-
+            
             List<List<string>> wishes;
             List<string> names;
 

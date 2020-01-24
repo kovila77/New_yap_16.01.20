@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Now_yap_16._01._20
         private Word.Document wDoc = null;
         public string templateName = null;
         public string fontName = null;
+        public string nameDirectory = "TemplateDirectory";
+        public string nameFile = "Wish";
 
         private Word.Application WordApp { get { if (wordApp == null) { wordApp = new Word.Application(); loadDoc(); } return wordApp; } }
         private Word.Document WDoc { get { if (wDoc == null) loadDoc(); return wDoc; } }
@@ -47,6 +50,15 @@ namespace Now_yap_16._01._20
                 WordApp.Selection.WholeStory();
                 WordApp.Selection.Font.Name = fontName;
             }
+
+            Directory.CreateDirectory(nameDirectory);
+            string nameF = Directory.GetCurrentDirectory() + "\\" + nameDirectory + "\\" + nameFile;
+            int number = 0;
+            while (File.Exists(nameF + number + ".docx"))
+            {
+                number++;
+            }
+            WordApp.ActiveDocument.SaveAs2(nameF + number + ".docx");
         }
 
         public void showWord()
